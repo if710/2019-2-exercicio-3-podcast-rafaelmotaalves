@@ -84,13 +84,14 @@ class MainActivity : AppCompatActivity() {
                 try {
                     var rssFeedText: String = URL(feedUrl).readText()
 
-                    result = Parser.parse(rssFeedText)
+                    val feed = Parser.parse(rssFeedText)
 
                     var db = ItemFeedDB.getDatabase(applicationContext)
 
-                    db.itemFeedDAO().addItemsFeed(*result.toTypedArray())
+                    db.itemFeedDAO().addItemsFeed(*feed.toTypedArray())
                 } catch (err : Exception) {
                     Log.d ("FetchFeedError", err.message)
+                } finally {
                     result = db.itemFeedDAO().allFeedItems().toList()
                 }
             } else {

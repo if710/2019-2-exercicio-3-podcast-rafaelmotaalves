@@ -117,7 +117,7 @@ object Parser {
             } else if (name == "description") {
                 description = readData(parser, "description")
             }  else if (name == "guid") {
-                downloadLink = readData(parser, "enclosure")
+                downloadLink = readData(parser, "guid")
             }  else {
                 skip(parser)
             }
