@@ -2,12 +2,15 @@ package br.ufpe.cin.android.podcast
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.drawable.Icon
+import android.media.Image
 import android.net.Uri
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.itemlista.view.*
@@ -24,9 +27,15 @@ class ItemFeedAdapter (private val feedItems: List<ItemFeed>, private val c: Con
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         var itemFeed = feedItems[position]
 
-        if (itemFeed.downloadPath != null) {
-            Log.d("RenderItemFeed", itemFeed.toString())
-            Log.d ("RenderItemFeed", itemFeed.downloadPath)
+        val hasDownloadedEpisode = itemFeed.downloadPath != null
+
+        val playIcon = Icon.createWithResource(c, R.drawable.play)
+        val downloadIcon = Icon.createWithResource(c, R.drawable.download)
+
+        if (hasDownloadedEpisode) {
+            holder.actionButton.setImageIcon(playIcon)
+        } else {
+            holder.actionButton.setImageIcon(downloadIcon)
         }
 
         holder.title.text = itemFeed.title
@@ -37,11 +46,14 @@ class ItemFeedAdapter (private val feedItems: List<ItemFeed>, private val c: Con
             c.startActivity(intent)
         }
 
-        holder.downloadButton.setOnClickListener {
-            val intent = Intent(c, DownloadService::class.java)
-            intent.data = Uri.parse(itemFeed.link)
+        holder.actionButton.setOnClickListener {
+            if (!hasDownloadedEpisode) {
+                val intent = Intent(c, DownloadService::class.java)
+                intent.data = Uri.parse(itemFeed.link)
 
-            c.startService(intent)
+                c.startService(intent)
+            }
+
         }
 
         holder.date.text = itemFeed.pubDate
@@ -51,7 +63,7 @@ class ItemFeedAdapter (private val feedItems: List<ItemFeed>, private val c: Con
     class ViewHolder (item: View) : RecyclerView.ViewHolder(item) {
         val title: TextView = item.item_title
         val date: TextView = item.item_date
-        val downloadButton: Button = item.item_action;
+        val actionButton: ImageButton = item.item_action
     }
 
 

@@ -14,13 +14,14 @@
             android:layout_height="wrap_content"
             android:layout_weight="8"
             android:textSize="18sp" />
-        <Button
+
+        <ImageButton
             android:id="@+id/item_action"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="2"
+            android:src="@drawable/download"
             android:text="@string/action_download" />
-
     </LinearLayout>
 
     <TextView
