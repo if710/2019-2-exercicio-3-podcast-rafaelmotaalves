@@ -1,10 +1,10 @@
 package br.ufpe.cin.android.podcast
 
-import android.content.Context
-import android.content.SharedPreferences
+import android.content.*
 import android.os.AsyncTask
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.IBinder
 import android.util.Log
 import kotlinx.android.synthetic.main.activity_main.*
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -14,10 +14,29 @@ import java.net.URL
 
 class MainActivity : AppCompatActivity() {
 
+    private val FEED_URL: String = "FEED_URL"
+
     private var feedUrl: String? = null
     private var sharedPref: SharedPreferences? = null
-    private val FEED_URL: String = "FEED_URL"
     private var feedItems: List<ItemFeed> = emptyList()
+
+    internal var podcastPlayerService: PodcastPlayerService? = null
+    internal var isBound = false
+
+    private val sConn = object : ServiceConnection {
+        override fun onServiceDisconnected(p0: ComponentName?) {
+            podcastPlayerService = null
+            isBound = false
+        }
+
+        override fun onServiceConnected(p0: ComponentName?, b: IBinder?) {
+            val binder = b as PodcastPlayerService.PodcastBinder
+            podcastPlayerService = binder.service
+            isBound = true
+
+        }
+
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,6 +44,8 @@ class MainActivity : AppCompatActivity() {
 
         sharedPref = this.getPreferences(Context.MODE_PRIVATE)
 
+        val podcastPlayerIntent = Intent(this, PodcastPlayerService::class.java)
+        startService(podcastPlayerIntent)
 
         feed_items_view.layoutManager = LinearLayoutManager(this)
 
@@ -51,7 +72,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun renderFeedItems () {
-        feed_items_view.adapter = ItemFeedAdapter(feedItems, this)
+        feed_items_view.adapter = ItemFeedAdapter(feedItems, this, podcastPlayerService)
     }
 
     internal inner class DeleteFeedTask : AsyncTask<Void, Void, Void>() {
@@ -69,6 +90,21 @@ class MainActivity : AppCompatActivity() {
             feedItems = emptyList()
         }
 
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (!isBound) {
+            val bindIntent = Intent(this,PodcastPlayerService::class.java)
+            isBound = bindService(bindIntent, sConn, Context.BIND_AUTO_CREATE)
+            Log.d ("PodcastPlayerBind", isBound.toString())
+
+        }
+    }
+
+    override fun onStop() {
+        unbindService(sConn)
+        super.onStop()
     }
 
 

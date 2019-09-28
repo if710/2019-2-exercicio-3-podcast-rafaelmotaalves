@@ -1,10 +1,12 @@
 package br.ufpe.cin.android.podcast
 
 import android.app.IntentService
+import android.app.PendingIntent
 import android.content.Intent
 import android.net.Uri
 import android.os.Environment.DIRECTORY_DOWNLOADS
 import android.util.Log
+import androidx.core.app.NotificationCompat
 import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -42,13 +44,12 @@ class DownloadService : IntentService("DownloadService") {
                     len = `in`.read(buffer)
                 }
                 out.flush()
-            } finally {
                 Log.d ("EpisodeDownload", "Download finished " + output.path)
 
                 itemFeed.downloadPath = output.path
 
                 db.itemFeedDAO().updateItemsFeed(itemFeed)
-
+            } finally {
                 fos.fd.sync()
                 out.close()
                 c.disconnect()

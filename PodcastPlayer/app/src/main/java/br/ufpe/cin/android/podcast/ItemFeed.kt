@@ -11,7 +11,8 @@ data class ItemFeed (
     val pubDate: String,
     val description: String,
     val downloadLink: String,
-    var downloadPath: String? = null
+    var downloadPath: String? = null,
+    var currentPosition: Int? = 0
     ) {
 
     override fun toString(): String {
