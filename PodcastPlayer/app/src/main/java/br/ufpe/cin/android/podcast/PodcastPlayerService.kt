@@ -1,7 +1,10 @@
 package br.ufpe.cin.android.podcast
 
 import android.app.*
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.net.Uri
@@ -12,37 +15,50 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import org.jetbrains.anko.doAsync
 import java.io.File
+import androidx.core.content.ContextCompat.getSystemService
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
 
 
 class PodcastPlayerService : Service() {
+
     private var mPlayer: MediaPlayer? = null
-
     private val mBinder = PodcastBinder()
-
     var currentItemFeed : ItemFeed? = null
 
     override fun onCreate() {
         super.onCreate()
-        Log.d ("PodcastPlayerService", "Creating")
-        mPlayer = MediaPlayer()
 
+        mPlayer = MediaPlayer()
         mPlayer?.isLooping = true
 
+        startForegroundNotification()
+    }
+
+    private fun startForegroundNotification () {
         createChannel()
 
         val notificationIntent = Intent(applicationContext, PodcastPlayerService::class.java)
         val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0)
 
+        val playIntent = Intent()
+        playIntent.action = PLAY_ACTION
+        val playPendingIntent = PendingIntent.getBroadcast(applicationContext, 0, playIntent, 0)
+
         val notification = NotificationCompat.Builder(
             applicationContext,"1")
             .setSmallIcon(android.R.drawable.ic_media_play)
-            .setOngoing(true).setContentTitle("PodcastPlayer rodando")
+            .setOngoing(true).setContentTitle("PodcastPlayer rodando em segundo plano")
             .setContentText("Clique para acessar o player!")
+            .addAction(NotificationCompat.Action(R.drawable.play, getString(R.string.action_play), playPendingIntent))
             .setContentIntent(pendingIntent).build()
 
         startForeground(NOTIFICATION_ID, notification)
     }
+
+
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+        registerBroadcastReceiver()
+
         return START_STICKY
     }
 
@@ -51,6 +67,10 @@ class PodcastPlayerService : Service() {
 
         mPlayer?.release()
         super.onDestroy()
+    }
+
+    override fun onBind(intent: Intent): IBinder {
+        return mBinder
     }
 
     fun toggle(itemFeed: ItemFeed) {
@@ -88,8 +108,6 @@ class PodcastPlayerService : Service() {
             itemFeed?.currentPosition = currPos
 
             doAsync {
-                Log.d ("SavedPosition", currPos.toString())
-
                 val db = ItemFeedDB.getDatabase(applicationContext)
 
                 db.itemFeedDAO().updateItemsFeed(itemFeed!!)
@@ -114,8 +132,24 @@ class PodcastPlayerService : Service() {
             get() = this@PodcastPlayerService
     }
 
-    override fun onBind(intent: Intent): IBinder {
-        return mBinder
+    private val receiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val action = intent.action
+            if (action != null && currentItemFeed != null) {
+                Log.d ("PodcastReceiver", action)
+
+                if (action == PLAY_ACTION) {
+                    Log.d ("PodcastReceiver", PLAY_ACTION)
+                    toggle(currentItemFeed!!)
+                }
+            }
+        }
+    }
+
+    private fun registerBroadcastReceiver () {
+        val intentFilter = IntentFilter()
+        intentFilter.addAction(PLAY_ACTION)
+        registerReceiver(receiver, intentFilter)
     }
 
     private fun createChannel() {
@@ -131,6 +165,7 @@ class PodcastPlayerService : Service() {
     }
     companion object {
         private const val NOTIFICATION_ID = 2
+        private const val PLAY_ACTION = "br.ufpe.cin.android.podcast.PlayAction"
     }
 
 }
