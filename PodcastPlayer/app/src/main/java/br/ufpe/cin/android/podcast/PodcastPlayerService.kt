@@ -167,7 +167,6 @@ class PodcastPlayerService : Service() {
     }
     companion object {
         private const val NOTIFICATION_ID = 2
-        private const val PLAY_ACTION = "br.ufpe.cin.android.podcast.PlayAction"
     }
 
 }

@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Environment.DIRECTORY_DOWNLOADS
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -26,6 +27,7 @@ class DownloadService : IntentService("DownloadService") {
 
             val root = getExternalFilesDir(DIRECTORY_DOWNLOADS)
             root?.mkdirs()
+
             val output = File(root, downloadUri.lastPathSegment!!)
             if (output.exists()) {
                 output.delete()
@@ -49,6 +51,8 @@ class DownloadService : IntentService("DownloadService") {
                 itemFeed.downloadPath = output.path
 
                 db.itemFeedDAO().updateItemsFeed(itemFeed)
+
+                LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(DOWNLOAD_FINISHED))
             } finally {
                 fos.fd.sync()
                 out.close()

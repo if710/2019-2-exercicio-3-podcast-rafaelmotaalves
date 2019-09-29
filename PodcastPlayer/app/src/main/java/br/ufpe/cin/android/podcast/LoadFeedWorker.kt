@@ -1,7 +1,9 @@
 package br.ufpe.cin.android.podcast
 
 import android.content.Context
+import android.content.Intent
 import android.util.Log
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import androidx.work.Worker
 import androidx.work.WorkerParameters
@@ -24,6 +26,8 @@ class LoadFeedWorker (context: Context, workerParams: WorkerParameters): Worker(
             val feed = Parser.parse(rssFeedText)
 
             db.itemFeedDAO().addItemsFeed(*feed.toTypedArray())
+
+            LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(Intent(UPDATE_FEED))
         } catch (err : Exception) {
             Log.d("FetchFeedError", err.message)
             return Result.failure()

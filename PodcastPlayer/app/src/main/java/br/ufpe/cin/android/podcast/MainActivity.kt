@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import androidx.preference.PreferenceManager.*
 import kotlinx.android.synthetic.main.activity_main.*
@@ -38,8 +39,32 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+
+    private val receiver = object : BroadcastReceiver() {
+
+        val intentFilter: IntentFilter
+            get() {
+                val intentFilter = IntentFilter()
+                intentFilter.addAction(UPDATE_FEED)
+                intentFilter.addAction(DOWNLOAD_FINISHED)
+                return intentFilter
+            }
+
+        override fun onReceive(context: Context, intent: Intent) {
+            val action = intent.action
+            Log.d ("MainActivityReceiver", action)
+            if (action == UPDATE_FEED || action == DOWNLOAD_FINISHED) {
+                loadAndRenderFeedItems()
+            }
+        }
+    }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        LocalBroadcastManager.getInstance(this).registerReceiver(receiver, receiver.intentFilter)
+
+        loadAndRenderFeedItems()
 
         val podcastPlayerIntent = Intent(this, PodcastPlayerService::class.java)
         startService(podcastPlayerIntent)
@@ -47,7 +72,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         sharedPref = getDefaultSharedPreferences(this)
-
 
         feed_items_view.layoutManager = LinearLayoutManager(this)
 
@@ -60,9 +84,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
+    override fun onDestroy() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver)
 
+        super.onDestroy()
+    }
+
+    private fun loadAndRenderFeedItems () {
         doAsync {
             val db = ItemFeedDB.getDatabase(applicationContext)
 
@@ -73,6 +101,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
 
     private fun renderFeedItems () {
         feed_items_view.adapter = ItemFeedAdapter(feedItems, this, podcastPlayerService)
