@@ -1,21 +1,17 @@
 package br.ufpe.cin.android.podcast
 
 import android.content.*
-import android.os.AsyncTask
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import androidx.preference.PreferenceManager
 import androidx.preference.PreferenceManager.*
 import kotlinx.android.synthetic.main.activity_main.*
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
-import java.lang.Exception
-import java.net.URL
 
 class MainActivity : AppCompatActivity() {
 
@@ -46,14 +42,14 @@ class MainActivity : AppCompatActivity() {
             get() {
                 val intentFilter = IntentFilter()
                 intentFilter.addAction(UPDATE_FEED)
-                intentFilter.addAction(DOWNLOAD_FINISHED)
+                intentFilter.addAction(UPDATE_DOWNLOAD)
                 return intentFilter
             }
 
         override fun onReceive(context: Context, intent: Intent) {
             val action = intent.action
             Log.d ("MainActivityReceiver", action)
-            if (action == UPDATE_FEED || action == DOWNLOAD_FINISHED) {
+            if (action == UPDATE_FEED || action == UPDATE_DOWNLOAD) {
                 loadAndRenderFeedItems()
             }
         }

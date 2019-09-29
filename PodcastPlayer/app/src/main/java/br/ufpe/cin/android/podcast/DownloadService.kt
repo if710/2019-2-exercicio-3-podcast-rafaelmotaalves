@@ -1,12 +1,10 @@
 package br.ufpe.cin.android.podcast
 
 import android.app.IntentService
-import android.app.PendingIntent
 import android.content.Intent
 import android.net.Uri
 import android.os.Environment.DIRECTORY_DOWNLOADS
 import android.util.Log
-import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import java.io.BufferedOutputStream
 import java.io.File
@@ -52,7 +50,7 @@ class DownloadService : IntentService("DownloadService") {
 
                 db.itemFeedDAO().updateItemsFeed(itemFeed)
 
-                LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(DOWNLOAD_FINISHED))
+                LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(UPDATE_DOWNLOAD))
             } finally {
                 fos.fd.sync()
                 out.close()

@@ -17,6 +17,7 @@ import org.jetbrains.anko.doAsync
 import java.io.File
 import androidx.core.content.ContextCompat.getSystemService
 import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceScreen
 
 
@@ -32,6 +33,31 @@ class PodcastPlayerService : Service() {
         mPlayer = MediaPlayer()
         mPlayer?.isLooping = true
 
+
+        mPlayer?.setOnCompletionListener {
+            if (currentItemFeed?.downloadPath != null) {
+                val downloadPath = currentItemFeed?.downloadPath
+
+                // Update downloadPath to null to indicate that the episode
+                // is not downloaded
+                doAsync {
+                    val db = ItemFeedDB.getDatabase(applicationContext)
+
+                    currentItemFeed?.downloadPath = null
+
+                    db.itemFeedDAO().updateItemsFeed(currentItemFeed!!)
+
+                }
+
+                // Delete file
+                File(downloadPath).delete()
+
+                // Send a broadcast so MainActivity will update download/play button
+                LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(Intent(UPDATE_DOWNLOAD))
+            }
+
+
+        }
         startForegroundNotification()
     }
 
