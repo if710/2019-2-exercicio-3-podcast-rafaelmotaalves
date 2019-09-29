@@ -1,0 +1,16 @@
+<androidx.preference.PreferenceScreen
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <EditTextPreference
+        app:key="feed_url"
+        app:title="Url for the podcast feed"
+        />
+
+    <DropDownPreference
+
+        app:key="update_time"
+        app:title="Time between podcast feed updates"
+        app:entries="@array/time_intervals"
+        />
+
+</androidx.preference.PreferenceScreen>

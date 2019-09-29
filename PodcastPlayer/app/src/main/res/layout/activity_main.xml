@@ -14,18 +14,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
-        <EditText
-            android:layout_weight="4"
-            android:id="@+id/feed_link_input"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-                                        />
         <Button
-            android:id="@+id/feed_link_submit"
+            android:id="@+id/config_activity"
             android:layout_weight="1"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Salvar"
+            android:text="@string/action_config"
             ></Button>
     </LinearLayout>
 

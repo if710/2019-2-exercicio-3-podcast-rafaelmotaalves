@@ -17,6 +17,7 @@ import org.jetbrains.anko.doAsync
 import java.io.File
 import androidx.core.content.ContextCompat.getSystemService
 import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+import androidx.preference.PreferenceScreen
 
 
 class PodcastPlayerService : Service() {
@@ -145,6 +146,7 @@ class PodcastPlayerService : Service() {
             }
         }
     }
+
 
     private fun registerBroadcastReceiver () {
         val intentFilter = IntentFilter()
