@@ -34,19 +34,20 @@ class MainActivity : AppCompatActivity() {
             val binder = b as PodcastPlayerService.PodcastBinder
             podcastPlayerService = binder.service
             isBound = true
-
         }
 
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val podcastPlayerIntent = Intent(this, PodcastPlayerService::class.java)
+        startService(podcastPlayerIntent)
+
         setContentView(R.layout.activity_main)
 
         sharedPref = getDefaultSharedPreferences(this)
 
-        val podcastPlayerIntent = Intent(this, PodcastPlayerService::class.java)
-        startService(podcastPlayerIntent)
 
         feed_items_view.layoutManager = LinearLayoutManager(this)
 
@@ -87,6 +88,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStop() {
         unbindService(sConn)
+        isBound = false
         super.onStop()
     }
 

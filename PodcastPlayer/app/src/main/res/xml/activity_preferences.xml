@@ -7,10 +7,11 @@
         />
 
     <DropDownPreference
-
         app:key="update_time"
+        app:useSimpleSummaryProvider="true"
         app:title="Time between podcast feed updates"
         app:entries="@array/time_intervals"
-        />
+        app:entryValues="@array/time_intervals_values"
+    />
 
 </androidx.preference.PreferenceScreen>

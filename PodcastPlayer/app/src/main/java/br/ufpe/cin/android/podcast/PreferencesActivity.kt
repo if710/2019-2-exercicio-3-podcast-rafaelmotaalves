@@ -10,6 +10,7 @@ import androidx.work.OneTimeWorkRequest
 import  androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import org.jetbrains.anko.doAsync
+import java.lang.Long.parseLong
 import java.util.concurrent.TimeUnit
 
 
@@ -48,9 +49,10 @@ class PreferencesActivity : AppCompatActivity(), SharedPreferences.OnSharedPrefe
             }
         }
 
-        val repeatInterval = sharedPreferences?.getLong("update_time", 15) ?: 15
+        val repeatIntervalString = sharedPreferences?.getString("update_time", "15") ?: "15"
+        val repeatInterval = parseLong(repeatIntervalString, 10)
 
-        val loadFeedRequest = PeriodicWorkRequest.Builder(LoadFeedWorker::class.java, repeatInterval, TimeUnit.SECONDS).build()
+        val loadFeedRequest = PeriodicWorkRequest.Builder(LoadFeedWorker::class.java, repeatInterval, TimeUnit.MINUTES).build()
 
         val workManager = WorkManager.getInstance(applicationContext)
 

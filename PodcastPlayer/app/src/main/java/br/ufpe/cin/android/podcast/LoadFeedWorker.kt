@@ -29,7 +29,7 @@ class LoadFeedWorker (context: Context, workerParams: WorkerParameters): Worker(
             return Result.failure()
         }
 
-        return Result.retry()
+        return Result.success()
     }
 
 }
