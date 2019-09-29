@@ -116,16 +116,18 @@ class PodcastPlayerService : Service() {
         }
     }
 
-    fun play () {
+    private fun play () {
         if (!mPlayer!!.isPlaying) {
             mPlayer?.start()
         }
     }
 
-    fun pause() {
+    private fun pause() {
         if (mPlayer!!.isPlaying) {
             mPlayer?.pause()
         }
+
+        saveCurrentProgress(currentItemFeed)
     }
 
     inner class PodcastBinder : Binder() {

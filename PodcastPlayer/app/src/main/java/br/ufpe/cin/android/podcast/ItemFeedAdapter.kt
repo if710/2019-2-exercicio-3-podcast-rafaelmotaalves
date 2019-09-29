@@ -52,7 +52,6 @@ class ItemFeedAdapter (private val feedItems: List<ItemFeed>, private val c: Con
 
                 c.startService(intent)
             } else {
-                Log.d ("Play", itemFeed.toString())
                 podcastPlayerService?.toggle(itemFeed)
             }
         }
